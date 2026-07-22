@@ -1,0 +1,24 @@
+{
+  "name": "english-learning-site",
+  "version": "1.0.0",
+  "description": "基于 Node.js + MySQL 5.7 的英语学习网站（背单词 / 单词本 / 智能复习 / 记忆算法）",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test:algo": "node src/services/memoryAlgorithm.test.js",
+    "db:build": "node scripts/build-word-data.js",
+    "db:setup": "node db/setup.js",
+    "db:seed": "node db/seed.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.0"
+  }
+}

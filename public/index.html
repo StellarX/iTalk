@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iTalk · 智能英语学习</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <!-- 背景光斑 -->
+  <div class="aurora" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+  </div>
+
+  <!-- 认证视图 -->
+  <section id="auth-view" class="auth-wrap">
+    <div class="auth-card luxury-glass">
+      <div class="brand">
+        <div class="logo">i</div>
+        <h1>iTalk</h1>
+        <p class="tagline">基于记忆算法的智能英语学习</p>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="login">登录</button>
+        <button class="tab" data-tab="register">注册</button>
+      </div>
+      <form id="auth-form" class="auth-form" autocomplete="off">
+        <label class="field">
+          <span>用户名</span>
+          <input type="text" name="username" required placeholder="请输入用户名" />
+        </label>
+        <label class="field">
+          <span>密码</span>
+          <input type="password" name="password" required placeholder="至少 6 位" />
+        </label>
+        <button type="submit" class="btn-primary magnetic" id="auth-submit">登录</button>
+        <p class="auth-msg" id="auth-msg"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- 主应用 -->
+  <section id="app-view" class="app hidden">
+    <aside class="sidebar luxury-glass">
+      <div class="brand small">
+        <div class="logo">i</div>
+        <span>iTalk</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="learn"><span class="ico">📚</span>背单词</button>
+        <button class="nav-item" data-view="review"><span class="ico">🔁</span>智能复习</button>
+        <button class="nav-item" data-view="wordbooks"><span class="ico">📒</span>单词本</button>
+        <button class="nav-item" data-view="search"><span class="ico">🔍</span>搜索</button>
+        <button class="nav-item" data-view="browse"><span class="ico">🗂️</span>浏览词库</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip" id="user-chip" title="点击修改账号">
+          <span class="avatar" id="user-avatar">U</span>
+          <span id="user-name">user</span>
+        </div>
+        <button class="btn-ghost" id="logout-btn">退出</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div class="topbar-title" id="view-title">背单词</div>
+        <div class="topbar-actions">
+          <button class="audio-toggle magnetic" id="audio-toggle" title="发音方式：手动（点击 🔊 朗读）">🔈 手动</button>
+          <button class="theme-toggle magnetic" id="theme-toggle" title="切换主题">🌗</button>
+        </div>
+      </header>
+
+      <!-- 学习视图 -->
+      <div class="view" id="view-learn">
+        <div class="panel setup-panel luxury-glass" id="learn-setup">
+          <h2>开始学习</h2>
+          <p class="muted">选择词库并指定本次学习单词数量，系统会优先推送你尚未学过的词。</p>
+          <div class="form-row">
+            <label class="field">
+              <span>词库</span>
+              <select id="learn-library"></select>
+            </label>
+            <label class="field">
+              <span>单词数量</span>
+              <input type="number" id="learn-count" value="10" min="1" max="100" />
+            </label>
+          </div>
+          <div class="lib-stat" id="learn-lib-stat"></div>
+          <button class="btn-primary magnetic" id="learn-start">开始学习 →</button>
+        </div>
+        <div class="session hidden" id="learn-session"></div>
+      </div>
+
+      <!-- 复习视图 -->
+      <div class="view hidden" id="view-review">
+        <div class="panel setup-panel luxury-glass" id="review-setup">
+          <h2>智能复习</h2>
+          <p class="muted">系统依据记忆算法，优先抽取<strong>最不牢固</strong>的单词。<br/>你可指定抽取前 N 个，也可限定词库 / 单词本范围。</p>
+          <div class="stats-row" id="review-stats">
+            <div class="stat stat-clickable" id="stat-learned" title="点击查看已学单词列表">
+              <div class="num" id="stat-learned-num">0</div>
+              <div class="cap">已学单词 ↗</div>
+            </div>
+            <div class="stat">
+              <div class="num" id="stat-strength">0</div>
+              <div class="cap">平均牢固度</div>
+            </div>
+            <div class="stat">
+              <div class="num" id="stat-due" style="color:var(--danger)">0</div>
+              <div class="cap" id="stat-due-cap">待复习</div>
+            </div>
+          </div>
+          <button class="help-toggle" id="strength-help-btn" type="button">ℹ️ 什么是「牢固度」？</button>
+          <div class="help-panel hidden" id="strength-help">
+            <h4>记忆牢固度说明</h4>
+            <p>系统用 <strong>0~100 的「牢固度」</strong>衡量每个单词的记忆状态，<strong>分数越低越该复习</strong>。</p>
+            <ul>
+              <li><strong>计算依据</strong>：距上次复习的时间（遗忘曲线）+ 最近一次你选择的熟悉等级。</li>
+              <li><strong>待复习</strong>：牢固度 &lt; 60 的单词，会被智能复习优先抽取。</li>
+              <li><strong>稳定度</strong>：单词记忆的「耐久度」（单位：小时）。稳定度越高，遗忘越慢、复习间隔越长。</li>
+              <li><strong>四个熟悉等级</strong>（卡片背面评级时选择）：
+                <span class="lv-tag lv0">不认识</span> 记忆崩塌、稳定度骤降；
+                <span class="lv-tag lv1">模糊</span><span class="lv-tag lv2">熟悉</span><span class="lv-tag lv3">掌握</span> 记忆巩固、稳定度随复习次数增长。</li>
+            </ul>
+          </div>
+          <div class="lib-progress" id="review-lib-progress"></div>
+          <div class="form-row">
+            <label class="field">
+              <span>抽取数量 N</span>
+              <input type="number" id="review-limit" value="20" min="1" max="200" />
+            </label>
+            <label class="field">
+              <span>限定词库（可选）</span>
+              <select id="review-library"><option value="">不限</option></select>
+            </label>
+            <label class="field">
+              <span>限定单词本（可选）</span>
+              <select id="review-wordbook"><option value="">不限</option></select>
+            </label>
+          </div>
+          <button class="btn-primary magnetic" id="review-start">开始复习 →</button>
+        </div>
+        <div class="session hidden" id="review-session"></div>
+      </div>
+
+      <!-- 单词本视图 -->
+      <div class="view hidden" id="view-wordbooks">
+        <div class="panel setup-panel luxury-glass wb-head">
+          <div>
+            <h2>我的单词本</h2>
+            <p class="muted">点击任意单词本查看其中的单词，学习/复习时可将单词加入单词本。</p>
+          </div>
+          <button class="btn-primary magnetic" id="wb-new-btn">＋ 新建单词本</button>
+        </div>
+        <div class="wb-grid" id="wb-grid"></div>
+        <div class="wb-detail hidden" id="wb-detail"></div>
+      </div>
+
+      <!-- 搜索视图 -->
+      <div class="view hidden" id="view-search">
+        <div class="panel setup-panel luxury-glass">
+          <h2>单词搜索</h2>
+          <p class="muted">模糊匹配单词或释义，点击结果查看详情（含音标、释义、例句、短语与所属词库）。</p>
+          <div class="search-bar">
+            <span class="search-ico">🔍</span>
+            <input type="text" id="search-input" placeholder="输入单词或中文释义，如 apple / 一致" autocomplete="off" />
+            <button class="btn-ghost" id="search-clear">清空</button>
+          </div>
+          <div class="search-meta muted" id="search-meta"></div>
+          <div class="search-results" id="search-results"></div>
+        </div>
+      </div>
+
+      <!-- 浏览词库视图 -->
+      <div class="view hidden" id="view-browse">
+        <div class="panel setup-panel luxury-glass">
+          <h2>浏览词库</h2>
+          <p class="muted">选择词库查看全部单词，可词库内模糊搜索、点击查看详情，并随时为单词评级（记录记忆状态，与学习/复习互通）。</p>
+          <div class="form-row">
+            <label class="field">
+              <span>词库</span>
+              <select id="browse-library"></select>
+            </label>
+            <label class="field">
+              <span>词库内搜索</span>
+              <input type="text" id="browse-search" placeholder="过滤单词或释义，如 apple / 一致" autocomplete="off" />
+            </label>
+          </div>
+        </div>
+        <div class="browse-panel luxury-glass hidden" id="browse-panel">
+          <div class="browse-meta muted" id="browse-meta"></div>
+          <div class="browse-list" id="browse-list"></div>
+          <div class="browse-foot hidden" id="browse-foot"></div>
+        </div>
+      </div>
+    </main>
+  </section>
+
+  <!-- 加入单词本 弹窗 -->
+  <div class="modal-mask hidden" id="wb-modal">
+    <div class="modal luxury-glass">
+      <h3>加入单词本</h3>
+      <div class="modal-list" id="modal-wb-list"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="modal-cancel">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 单词详情 弹窗 -->
+  <div class="modal-mask hidden" id="word-detail-modal">
+    <div class="modal luxury-glass word-detail" id="word-detail"></div>
+  </div>
+
+  <!-- 已学单词列表 弹窗 -->
+  <div class="modal-mask hidden" id="learned-modal">
+    <div class="modal luxury-glass learned-modal">
+      <button class="modal-close" id="learned-close">✕</button>
+      <h3>已学单词</h3>
+      <div class="learned-meta muted" id="learned-meta"></div>
+      <div class="learned-list" id="learned-list"></div>
+      <div class="learned-foot hidden" id="learned-foot"></div>
+    </div>
+  </div>
+
+  <!-- 新建单词本 弹窗 -->
+  <div class="modal-mask hidden" id="wb-create-modal">
+    <div class="modal luxury-glass">
+      <h3>新建单词本</h3>
+      <label class="field"><span>名称</span><input type="text" id="wb-new-name" placeholder="如：我的生词本" /></label>
+      <label class="field"><span>分类（可选）</span><input type="text" id="wb-new-cat" placeholder="如：考试" /></label>
+      <p class="auth-msg" id="wb-new-msg"></p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="wb-new-cancel">取消</button>
+        <button class="btn-primary" id="wb-new-confirm">创建</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 账号设置 弹窗 -->
+  <div class="modal-mask hidden" id="account-modal">
+    <div class="modal luxury-glass">
+      <h3>账号设置</h3>
+      <label class="field"><span>用户名</span><input type="text" id="acc-username" autocomplete="off" /></label>
+      <label class="field"><span>当前密码（修改密码时必填）</span><input type="password" id="acc-cur" placeholder="不修改密码可留空" autocomplete="off" /></label>
+      <label class="field"><span>新密码</span><input type="password" id="acc-new" placeholder="至少 6 位" autocomplete="off" /></label>
+      <label class="field"><span>确认新密码</span><input type="password" id="acc-new2" placeholder="再次输入新密码" autocomplete="off" /></label>
+      <p class="auth-msg" id="acc-msg"></p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="acc-cancel">取消</button>
+        <button class="btn-primary" id="acc-save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="./js/api.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
