@@ -125,6 +125,10 @@ body {
 
 .magnetic { will-change: transform; }
 
+/* 移动端点击反馈更干净（去除默认高亮块） */
+button, a, .flip-card, .nav-item, .browse-row, .search-item,
+.word-row, .modal-item, .learned-item, .wb-card { -webkit-tap-highlight-color: transparent; }
+
 /* ---------- 认证 ---------- */
 .auth-wrap { min-height: 100vh; display: grid; place-items: center; padding: 20px; }
 .auth-card { width: min(420px, 92vw); padding: 38px 34px; animation: pop 0.6s cubic-bezier(0.16,1,0.3,1); }
@@ -363,11 +367,84 @@ body {
 .b-strength.strength-strong { background: rgba(37,194,110,0.16); color: var(--good); }
 .browse-foot { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px; }
 
-/* ---------- 移动端 ---------- */
+/* ---------- 移动端（手机，≤640px）：底部标签栏 + 紧凑布局 ---------- */
 @media (max-width: 640px) {
+  /* 浏览词库行：纵向堆叠 */
   .browse-row { flex-direction: column; align-items: stretch; gap: 10px; }
   .b-grade { flex-wrap: wrap; }
   .b-strength { margin-left: auto; }
+
+  /* 整体单列，侧栏脱离文档流变为底部固定标签栏 */
+  .app { display: block; }
+  .sidebar {
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto;
+    margin: 0; height: auto; z-index: 50;
+    flex-direction: row; align-items: center; gap: 4px;
+    padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
+    border-radius: 18px 18px 0 0; border: 1px solid var(--border); border-bottom: none;
+    background: var(--surface-strong);
+    box-shadow: 0 -8px 30px rgba(30, 40, 90, 0.14);
+  }
+  .brand.small { display: none; }
+  .nav { flex-direction: row; flex: 1; gap: 2px; justify-content: space-around; }
+  .nav-item {
+    flex: 1 1 0; min-width: 0; flex-direction: column; gap: 2px;
+    padding: 7px 2px; font-size: 11px; border-radius: 12px; line-height: 1.2;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .nav-item .ico { font-size: 19px; }
+  .sidebar-foot {
+    flex: 0 0 auto; flex-direction: row; align-items: center;
+    border: none; padding: 0; gap: 6px;
+  }
+  .sidebar-foot .btn-ghost { padding: 8px 10px; font-size: 12px; }
+  .avatar { width: 30px; height: 30px; }
+  .user-chip span:last-child { display: none; }
+
+  /* 内容区底部留出标签栏空间，避免被遮挡 */
+  .content { padding: 14px 14px calc(88px + env(safe-area-inset-bottom)); }
+  .topbar { margin-bottom: 16px; gap: 10px; }
+  .topbar-title { font-size: 20px; }
+
+  /* 面板 / 卡片头 */
+  .panel { padding: 18px; }
+  .wb-head { flex-wrap: wrap; }
+
+  /* 统计：两列 */
+  .stats-row { gap: 10px; }
+  .stat { min-width: 0; flex: 1 1 40%; padding: 14px; }
+  .stat .num { font-size: 22px; }
+
+  /* 各词库进度：堆叠，进度条占整行 */
+  .lib-row { grid-template-columns: 1fr; gap: 6px; }
+  .lib-num { text-align: left; }
+
+  /* 学习 / 复习 翻转卡片：缩小内边距与高度，避免大段空白 */
+  .flip-card { min-height: 56vh; }
+  .flip-inner { min-height: 56vh; }
+  .face { padding: 22px 18px; }
+  .card-word { font-size: 30px; }
+  .card-front-center { padding: 8px; }
+  .familiarity { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .fam-btn { padding: 12px 6px; font-size: 14px; }
+
+  /* 表单行：纵向铺满，输入框 16px 防止 iOS 聚焦自动缩放 */
+  .form-row { gap: 12px; }
+  .form-row .field { min-width: 0; }
+  .field input, .field select,
+  .search-bar input, .form-row.inline input { font-size: 16px; }
+  .search-bar { flex-wrap: wrap; }
+  .search-item { flex-direction: column; align-items: flex-start; gap: 4px; }
+
+  /* 弹窗：更紧凑 */
+  .modal { padding: 20px; width: min(420px, 94vw); }
+  .modal-close { top: 10px; right: 10px; }
+
+  /* 单词本详情头允许换行 */
+  .wb-detail-head { flex-wrap: wrap; }
+
+  /* Toast 抬到标签栏上方，避免被遮挡 */
+  .toast { bottom: calc(84px + env(safe-area-inset-bottom)); }
 }
 
 /* ---------- Toast ---------- */
@@ -427,8 +504,8 @@ body {
 .li-def { color: var(--text-soft); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .li-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
 
-/* ---------- 响应式 ---------- */
-@media (max-width: 860px) {
+/* ---------- 响应式（平板 / 横屏手机，641–860px） ---------- */
+@media (min-width: 641px) and (max-width: 860px) {
   .app { grid-template-columns: 1fr; }
   .sidebar { position: static; height: auto; flex-direction: row; align-items: center; margin: 10px; }
   .brand.small span { display: none; }
@@ -441,4 +518,9 @@ body {
   .card-word { font-size: 32px; }
   .search-item { flex-direction: column; align-items: flex-start; gap: 4px; }
   .search-bar { flex-wrap: wrap; }
+}
+
+/* 手机端 Toast 需抬到标签栏上方（置于文件末尾，覆盖基础 .toast 的 bottom 值） */
+@media (max-width: 640px) {
+  .toast { bottom: calc(84px + env(safe-area-inset-bottom)); }
 }
