@@ -1,0 +1,48 @@
+# ===== Dependencies（依赖） =====
+node_modules/
+.pnp/
+.pnp.js
+
+# ===== Environment variables（环境变量 / 密钥，切勿提交） =====
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+# 保留示例文件，供他人参照创建自己的 .env
+!.env.example
+
+# ===== Build / output（构建产物） =====
+dist/
+build/
+out/
+.next/
+.turbo/
+.cache/
+
+# ===== Logs（日志） =====
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== Coverage / test（测试覆盖） =====
+coverage/
+.nyc_output/
+
+# ===== Editor / IDE（编辑器） =====
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ===== OS（系统文件） =====
+.DS_Store
+Thumbs.db
+
+# ===== Runtime data =====
+*.pid
+*.seed
